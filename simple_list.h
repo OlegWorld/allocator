@@ -71,16 +71,7 @@ public:
     }
 
     void clear() {
-        if (m_head) {
-            while (m_head->next()) {
-                auto n = m_head->next();
-
-                std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, m_head);
-                std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, m_head, 1);
-
-                m_head = n;
-            }
-        }
+        while (delete_head());
     }
 
 private:
@@ -88,6 +79,20 @@ private:
         auto p = std::allocator_traits<NodeAlloc>::allocate(m_node_alloc, 1);
         std::allocator_traits<NodeAlloc>::construct(m_node_alloc, p, el);
         return p;
+    }
+
+    bool delete_head() {
+        if (m_head) {
+            auto n = m_head;
+            m_head = m_head->next();
+
+            std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, n);
+            std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, n, 1);
+
+            return true;
+        }
+
+        return false;
     }
 
 private:

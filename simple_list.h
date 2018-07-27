@@ -22,6 +22,10 @@ public:
             m_data(el)
     { }
 
+    ~node() {
+        m_next = nullptr;
+    }
+
     void link_node(node<T>* n) noexcept {
         m_next = n;
     }

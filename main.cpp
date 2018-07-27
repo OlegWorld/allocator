@@ -28,5 +28,19 @@ int main() {
         std::cout << el.first << " " << el.second << std::endl;
     }
 
+    std::cout << std::endl;
+
+    simple_list<int> sl;
+
+    for (int i = 0; i < 10; i++)
+        sl.push(i);
+
+    simple_list<int, resize_allocator<int>> rl;
+
+    for (int i = 0; i < 10; i++)
+        rl.push(i);
+
+    rl.print_elements();
+
     return 0;
 }

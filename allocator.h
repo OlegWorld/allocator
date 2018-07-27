@@ -19,8 +19,11 @@ public:
     using difference_type = std::ptrdiff_t;
 
 public:
-    resize_allocator()
-            : m_pool(nullptr), m_pool_size(0), m_allocated(0) { }
+    resize_allocator() :
+            m_pool(nullptr),
+            m_pool_size(0),
+            m_allocated(0)
+    { }
 
     pointer allocate(size_type n, size_type chunk_size = 10) {
         if (!m_pool) {

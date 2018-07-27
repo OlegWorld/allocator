@@ -49,17 +49,7 @@ public:
     { }
 
     ~simple_list() {
-        if (m_head) {
-            while (m_head->next()) {
-                std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, m_head);
-                std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, m_head, 1);
-
-                m_head = m_head->next();
-            }
-
-            std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, m_head);
-            std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, m_head, 1);
-        }
+        clear();
     }
 
     void push(const T& el) {
@@ -77,6 +67,19 @@ public:
         while (n->next()) {
             n = n->next();
             std::cout << n->data() << std::endl;
+        }
+    }
+
+    void clear() {
+        if (m_head) {
+            while (m_head->next()) {
+                auto n = m_head->next();
+
+                std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, m_head);
+                std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, m_head, 1);
+
+                m_head = n;
+            }
         }
     }
 

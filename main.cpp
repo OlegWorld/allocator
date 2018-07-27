@@ -35,12 +35,16 @@ int main() {
     for (int i = 0; i < 10; i++)
         sl.push(i);
 
-    simple_list<int, resize_allocator<int>> rl;
+    sl.clear();
 
-    for (int i = 0; i < 10; i++)
-        rl.push(i);
-
-    rl.print_elements();
+//    simple_list<int, resize_allocator<int>> rl;
+//
+//    for (int i = 0; i < 10; i++)
+//        rl.push(i);
+//
+//    rl.print_elements();
+//
+//    rl.clear();
 
     return 0;
 }

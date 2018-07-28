@@ -27,7 +27,7 @@ public:
 
     pointer allocate(size_type n, size_type chunk_size = 10) {
         if (!m_pool) {
-            // std::cout << "allocating" << std::endl;
+            //std::cout << "allocating" << std::endl;
             reserve(chunk_size);
         }
         if (m_allocated < m_pool_size) {
@@ -41,7 +41,7 @@ public:
         m_allocated--;
 
         if (!m_allocated && m_pool) {
-            // std::cout << "deallocating" << std::endl;
+            //std::cout << "deallocating" << std::endl;
             ::operator delete(m_pool);
             m_pool = nullptr;
         }
@@ -49,12 +49,12 @@ public:
 
     template <class U, class... Args>
     void construct(U* p, Args&&... args) {
-        // std::cout << "constructing" << std::endl;
+        //std::cout << "constructing" << std::endl;
         new (p) U(std::forward<Args>(args)...);
     }
 
     void destroy(pointer p) {
-        // std::cout << "destroying" << std::endl;
+        //std::cout << "destroying" << std::endl;
         p->~T();
     }
 

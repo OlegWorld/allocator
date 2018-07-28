@@ -17,13 +17,11 @@ struct replace_allocator_arg<Alloc<T>, U> {
 template <class T>
 class node {
 public:
-    template <class Alloc, class... Args>
-    node(Alloc& a, Args&&... args) noexcept :
+    template <class... Args>
+    node(Args&&... args) noexcept :
             m_next(nullptr),
-            m_data(std::allocator_traits<Alloc>::allocate(a, 1))
-    {
-        std::allocator_traits<Alloc>::construct(a, m_data, std::forward<Args>(args)...);
-    }
+            m_data(std::forward<Args>(args)...)
+    { }
 
     ~node() {
         m_next = nullptr;
@@ -38,18 +36,12 @@ public:
     }
 
     const T& data() const noexcept {
-        return *m_data;
-    }
-
-    template <class Alloc>
-    void clear(Alloc& a) {
-        std::allocator_traits<Alloc>::destroy(a, m_data);
-        std::allocator_traits<Alloc>::deallocate(a, m_data, 1);
+        return m_data;
     }
 
 private:
     node<T>*    m_next;
-    T*          m_data;
+    T           m_data;
 };
 
 template <class T, class Alloc = std::allocator<T>>
@@ -92,7 +84,7 @@ private:
     template <class... Args>
     node<T>* create_new_node(Args&&... args) {
         auto n = std::allocator_traits<NodeAlloc>::allocate(m_node_alloc, 1);
-        std::allocator_traits<NodeAlloc>::construct(m_node_alloc, n, m_data_alloc, std::forward<Args>(args)...);
+        std::allocator_traits<Alloc>::construct(m_data_alloc, n, std::forward<Args>(args)...);
         return n;
     }
 
@@ -101,8 +93,7 @@ private:
             auto n = m_head;
             m_head = m_head->next();
 
-            n->clear(m_data_alloc);
-            std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, n);
+            std::allocator_traits<Alloc>::destroy(m_data_alloc, n);
             std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, n, 1);
 
             return true;

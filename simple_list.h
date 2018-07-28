@@ -17,10 +17,13 @@ struct replace_allocator_arg<Alloc<T>, U> {
 template <class T>
 class node {
 public:
-    node(const T& el) noexcept :
+    template <class Alloc, class... Args>
+    node(Alloc& a, Args&&... args) noexcept :
             m_next(nullptr),
-            m_data(el)
-    { }
+            m_data(std::allocator_traits<Alloc>::allocate(a, 1))
+    {
+        std::allocator_traits<Alloc>::construct(a, m_data, std::forward<Args>(args)...);
+    }
 
     ~node() {
         m_next = nullptr;
@@ -35,12 +38,18 @@ public:
     }
 
     const T& data() const noexcept {
-        return m_data;
+        return *m_data;
+    }
+
+    template <class Alloc>
+    void clear(Alloc& a) {
+        std::allocator_traits<Alloc>::destroy(a, m_data);
+        std::allocator_traits<Alloc>::deallocate(a, m_data, 1);
     }
 
 private:
     node<T>*    m_next;
-    T           m_data;
+    T*          m_data;
 };
 
 template <class T, class Alloc = std::allocator<T>>
@@ -56,10 +65,11 @@ public:
         clear();
     }
 
-    void push(const T& el) {
-        auto p = create_new_node(el);
-        p->link_node(m_head);
-        m_head = p;
+    template <class... Args>
+    void emplace(Args&&... args) {
+        auto n = create_new_node(std::forward<Args>(args)...);
+        n->link_node(m_head);
+        m_head = n;
     }
 
     void print_elements() noexcept {
@@ -79,10 +89,11 @@ public:
     }
 
 private:
-    node<T>* create_new_node(const T& el) {
-        auto p = std::allocator_traits<NodeAlloc>::allocate(m_node_alloc, 1);
-        std::allocator_traits<NodeAlloc>::construct(m_node_alloc, p, el);
-        return p;
+    template <class... Args>
+    node<T>* create_new_node(Args&&... args) {
+        auto n = std::allocator_traits<NodeAlloc>::allocate(m_node_alloc, 1);
+        std::allocator_traits<NodeAlloc>::construct(m_node_alloc, n, m_data_alloc, std::forward<Args>(args)...);
+        return n;
     }
 
     bool delete_head() {
@@ -90,6 +101,7 @@ private:
             auto n = m_head;
             m_head = m_head->next();
 
+            n->clear(m_data_alloc);
             std::allocator_traits<NodeAlloc>::destroy(m_node_alloc, n);
             std::allocator_traits<NodeAlloc>::deallocate(m_node_alloc, n, 1);
 
@@ -101,5 +113,6 @@ private:
 
 private:
     node<T>*    m_head;
+    Alloc       m_data_alloc;
     NodeAlloc   m_node_alloc;
 };

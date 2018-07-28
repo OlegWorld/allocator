@@ -33,12 +33,12 @@ int main() {
     simple_list<int> sl;
 
     for (int i = 0; i < 10; i++)
-        sl.push(i);
+        sl.emplace(i);
 
     simple_list<int, resize_allocator<int>> rl;
 
     for (int i = 0; i < 10; i++)
-        rl.push(i);
+        rl.emplace(i);
 
     rl.print_elements();
 
